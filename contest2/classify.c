@@ -1,5 +1,10 @@
 #include <stdint.h>
 
+const int8_t AMOUNT_OF_MAN_AND_EXP_BITS = 63;
+const int8_t AMOUNT_OF_SIGN_AND_EXP_BITS = 12;
+const int8_t AMOUNT_OF_SIGN_BITS = 1;
+const int8_t AMOUNT_OF_MAN_BITS = 52;
+
 typedef enum {
     PlusZero = 0x00,
     MinusZero = 0x01,
@@ -13,37 +18,39 @@ typedef enum {
     QuietNaN = 0x31
 } float_class_t;
 
-extern float_class_t classify(double *value_ptr) {
+float_class_t classify(double *value_ptr) {
+    int64_t result;
+
     double *value_ptr_as_double = value_ptr;
     void *value_ptr_as_void = value_ptr_as_double;
     uint64_t *value_ptr_as_int = value_ptr_as_void;
 
     uint64_t sign = *value_ptr_as_int;
-    sign >>= 63;
+    sign >>= AMOUNT_OF_MAN_AND_EXP_BITS;
 
     uint64_t exp = *value_ptr_as_int;
-    exp <<= 1;
-    exp >>= 53;
+    exp <<= AMOUNT_OF_SIGN_BITS;
+    exp >>= AMOUNT_OF_MAN_BITS + 1;
 
     uint64_t man = *value_ptr_as_int;
-    man <<= 12;
-    man >>= 12;
+    man <<= AMOUNT_OF_SIGN_AND_EXP_BITS;
+    man >>= AMOUNT_OF_SIGN_AND_EXP_BITS;
 
     if (exp == 0) {
         if (man == 0) {
-            return sign == 0 ? PlusZero : MinusZero;
+            result = (sign == 0 ? PlusZero : MinusZero);
+        } else {
+            result = (sign == 0 ? PlusDenormal : MinusDenormal);
         }
-
-        return sign == 0 ? PlusDenormal : MinusDenormal;
-    }
-
-    if (exp == 2047) {
+    } else if (exp == 2047) {
         if (man == 0) {
-            return sign == 0 ? PlusInf : MinusInf;
+            result = (sign == 0 ? PlusInf : MinusInf);
+        } else {
+            result = (sign == 0 ? SignalingNaN : QuietNaN);
         }
-
-        return sign == 0 ? SignalingNaN : QuietNaN;
+    } else {
+        result = (sign == 0 ? PlusRegular : MinusRegular);
     }
 
-    return sign == 0 ? PlusRegular : MinusRegular;
+    return result;
 }
