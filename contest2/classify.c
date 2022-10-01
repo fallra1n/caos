@@ -1,9 +1,10 @@
 #include <stdint.h>
 
-const int8_t AMOUNT_OF_MAN_AND_EXP_BITS = 63;
-const int8_t AMOUNT_OF_SIGN_AND_EXP_BITS = 12;
-const int8_t AMOUNT_OF_SIGN_BITS = 1;
-const int8_t AMOUNT_OF_MAN_BITS = 52;
+const int8_t MAN_AND_EXP_BITS = 63;
+const int8_t SIGN_AND_EXP_BITS = 12;
+const int8_t SIGN_BITS = 1;
+const int8_t MAN_BITS = 52;
+const uint64_t TWO_TO_THE_11_DEGREE = (1ULL << 11);
 
 typedef enum {
     PlusZero = 0x00,
@@ -18,6 +19,14 @@ typedef enum {
     QuietNaN = 0x31
 } float_class_t;
 
+void SetResult(int64_t *result, uint64_t man, uint64_t sign, int64_t p_first, int64_t m_first, int64_t p_second, int64_t m_second) {
+    if (man == 0) {
+        *result = (sign == 0 ? p_first : m_first);
+    } else {
+        *result = (sign == 0 ? p_second : m_second);
+    }
+}
+
 float_class_t classify(double *value_ptr) {
     int64_t result;
 
@@ -26,28 +35,20 @@ float_class_t classify(double *value_ptr) {
     uint64_t *value_ptr_as_int = value_ptr_as_void;
 
     uint64_t sign = *value_ptr_as_int;
-    sign >>= AMOUNT_OF_MAN_AND_EXP_BITS;
+    sign >>= MAN_AND_EXP_BITS;
 
     uint64_t exp = *value_ptr_as_int;
-    exp <<= AMOUNT_OF_SIGN_BITS;
-    exp >>= AMOUNT_OF_MAN_BITS + 1;
+    exp <<= SIGN_BITS;
+    exp >>= MAN_BITS + 1;
 
     uint64_t man = *value_ptr_as_int;
-    man <<= AMOUNT_OF_SIGN_AND_EXP_BITS;
-    man >>= AMOUNT_OF_SIGN_AND_EXP_BITS;
+    man <<= SIGN_AND_EXP_BITS;
+    man >>= SIGN_AND_EXP_BITS;
 
     if (exp == 0) {
-        if (man == 0) {
-            result = (sign == 0 ? PlusZero : MinusZero);
-        } else {
-            result = (sign == 0 ? PlusDenormal : MinusDenormal);
-        }
-    } else if (exp == 2047) {
-        if (man == 0) {
-            result = (sign == 0 ? PlusInf : MinusInf);
-        } else {
-            result = (sign == 0 ? SignalingNaN : QuietNaN);
-        }
+        SetResult(&result, man, sign, PlusZero, MinusZero, PlusDenormal, MinusDenormal);
+    } else if (exp == TWO_TO_THE_11_DEGREE - 1) {
+        SetResult(&result, man, sign, PlusInf, MinusInf, SignalingNaN, QuietNaN);
     } else {
         result = (sign == 0 ? PlusRegular : MinusRegular);
     }
