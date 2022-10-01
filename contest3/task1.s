@@ -1,5 +1,0 @@
-  .text
-  .global summ
-
-summ:
-  
