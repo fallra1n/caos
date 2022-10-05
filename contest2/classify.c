@@ -19,12 +19,14 @@ typedef enum {
     QuietNaN = 0x31
 } float_class_t;
 
-void SetResult(int64_t *result, uint64_t man, uint64_t sign, int64_t p_first, int64_t m_first, int64_t p_second, int64_t m_second) {
+int64_t GetResult(uint64_t man, uint64_t sign, int64_t p_first, int64_t m_first, int64_t p_second, int64_t m_second) {
+    int64_t result;
     if (man == 0) {
-        *result = (sign == 0 ? p_first : m_first);
+        result = (sign == 0 ? p_first : m_first);
     } else {
-        *result = (sign == 0 ? p_second : m_second);
+        result = (sign == 0 ? p_second : m_second);
     }
+    return result;
 }
 
 float_class_t classify(double *value_ptr) {
@@ -39,16 +41,16 @@ float_class_t classify(double *value_ptr) {
 
     uint64_t exp = *value_ptr_as_int;
     exp <<= SIGN_BITS;
-    exp >>= MAN_BITS + 1;
+    exp >>= MAN_BITS + SIGN_BITS;
 
     uint64_t man = *value_ptr_as_int;
     man <<= SIGN_AND_EXP_BITS;
     man >>= SIGN_AND_EXP_BITS;
 
     if (exp == 0) {
-        SetResult(&result, man, sign, PlusZero, MinusZero, PlusDenormal, MinusDenormal);
+        result = GetResult(man, sign, PlusZero, MinusZero, PlusDenormal, MinusDenormal);
     } else if (exp == TWO_TO_THE_11_DEGREE - 1) {
-        SetResult(&result, man, sign, PlusInf, MinusInf, SignalingNaN, QuietNaN);
+        result = GetResult(man, sign, PlusInf, MinusInf, SignalingNaN, QuietNaN);
     } else {
         result = (sign == 0 ? PlusRegular : MinusRegular);
     }
