@@ -1,7 +1,6 @@
 all: clean testing.o format_io-64 result.o
 .PHONY: all
 
-
 testing.o:
 	aarch64-linux-gnu-gcc -c testing.c -o testing.o
 

@@ -1,13 +1,12 @@
 .text
-.global func_for_testing
+.global solve
 .global I
 .global O
 
-func_for_testing:
+solve:
   mov x19, x30
   mov x20, sp
   sub sp, sp, 16
-  
 
   adr x0, I
   sub x1, x20, 4

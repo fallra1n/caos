@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-extern void solve();
+extern void temp();
 
 int main() {
-  solve();
+  temp();
   return 0;
 }
