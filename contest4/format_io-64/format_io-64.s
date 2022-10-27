@@ -4,27 +4,25 @@
 .global O
 
 solve:
-  mov x19, x30
-  mov x20, sp
   sub sp, sp, 16
+  str x30, [sp, 12]
 
   adr x0, I
-  sub x1, x20, 4
-  sub x2, x20, 0
+  add x1, sp, 4
+  add x2, sp, 8
   bl scanf
 
-  ldr w1, [x20, -4]
-  ldr w2, [x20, 0]
+  ldr w1, [sp, 4]
+  ldr w2, [sp, 8]
   add w1, w1, w2
   adr x0, O
   bl printf
 
-  mov sp, x20
-  mov x30, x19
+  ldr x30, [sp, 12]
+  add sp, sp, 16
   mov x0, 0
   ret
 
 .data
   I: .string "%d\n%d"
   O: .string "%d"
-
