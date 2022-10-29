@@ -12,12 +12,9 @@ sum:
   mov r8, rcx
   mov rcx, rdi
 .Loop:
-  mov ebx, 0
-  mov r9, rcx
-  dec r9
-  add ebx, [rsi + 4 * r9]
-  add ebx, [rdx + 4 * r9]
-  mov [r8 + 4 * r9], ebx
+  mov ebx, [rsi + 4 * rcx - 4]
+  add ebx, [rdx + 4 * rcx - 4]
+  mov [r8 + 4 * rcx - 4], ebx
   loop .Loop
  
   pop rbx

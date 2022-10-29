@@ -9,7 +9,7 @@ very_important_function:
   push r13 # len
   push r14 # cur val
   push r15 # counter
-  sub rsp, 32
+  sub rsp, 16
 
   xor r15, r15
   mov r13, rdi
@@ -37,10 +37,11 @@ very_important_function:
   jmp .Loop
 
 .LoopEnd:
-  pop r12 # A
-  pop r13 # len
-  pop r14 # cur val
-  pop r15 # counter
+  sub rsp, 16
+  pop r15 # A
+  pop r14 # len
+  pop r13 # cur val
+  pop r12 # counter
   mov rsp, rbp
   pop rbp
   ret
