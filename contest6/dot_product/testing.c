@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern float dot_product(size_t N, const float *A, const float *B);
+extern float dot_product(int N, const float *A, const float *B);
 
 int main() {
-  size_t N = 8;
+  int N = 10;
   float *A = aligned_alloc(32, N * sizeof(float));
   float *B = aligned_alloc(32, N * sizeof(float));
 

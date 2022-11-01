@@ -11,26 +11,31 @@
 dot_product:
   push rbp
   mov rbp, rsp
-
+  
   mov rcx, 0
   vxorps ymm0, ymm0, ymm0 # for A
   vxorps ymm1, ymm1, ymm1 # for B
   vxorps ymm2, ymm2, ymm2
+  vxorps ymm3, ymm3, ymm3
+  vxorps ymm4, ymm4, ymm4
   xorps xmm0, xmm0
 
 LoopBegin:
   cmp rdi, 8
   jl Loop
 
-  vmovups ymm0, [rsi + rax * 4]
-  vmovups ymm1, [rdx + rax * 4]
+  mov r8, rcx
+  add r8, 8
+  cmp r8, rdi
+  jg LoopEnd
+
+  vmovups ymm0, [rsi + rcx * 4]
+  vmovups ymm1, [rdx + rcx * 4]
 
   vmulps ymm0, ymm0, ymm1
   vaddps ymm2, ymm2, ymm0
 
   add rcx, 8
-  cmp rcx, rdi
-  jge LoopEnd
 
   jmp LoopBegin
 
@@ -44,15 +49,14 @@ LoopEnd:
 
   cmp rdi, rcx
   jz End
-  sub rcx, 8
-  jnz Loop
+  jmp Loop
 
 Loop:
-  movsd xmm1, [rsi + rdi * 4]
-  movsd xmm2, [rdx + rdi * 4]
-  addsd xmm1, xmm2
-  addsd xmm0, xmm1
-  inc rdi
+  movss xmm1, [rsi + rcx * 4]
+  movss xmm2, [rdx + rcx * 4]
+  mulss xmm1, xmm2
+  addss xmm0, xmm1
+  inc rcx
   cmp rdi, rcx
   jz End
 
@@ -61,3 +65,4 @@ Loop:
 End:
   mov rsp, rbp
   pop rbp
+  ret
