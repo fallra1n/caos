@@ -4,21 +4,21 @@
   .text
   .global _start
 
+#define BUFF_SIZE 65536
+#define READ_NUMBER 0
+#define WRITE_NUMBER 1
+#define RETURN_CODE 0
+
 _start:
-  push rbx
   push rbp
-  push r12
-  push r13
-  push r14
-  push r15
   mov rbp, rsp
-  sub rsp, 65536 # 64 Kb
+  sub rsp, BUFF_SIZE
 
 LoopReadWriteBegin:
   mov rax, SYS_read
-  mov rdi, 0
+  mov rdi, READ_NUMBER
   mov rsi, rsp
-  mov rdx, 65536 # 64 Kb
+  mov rdx, BUFF_SIZE
   syscall
 
   cmp rax, 0
@@ -26,7 +26,7 @@ LoopReadWriteBegin:
 
   mov rdx, rax
   mov rax, SYS_write
-  mov rdi, 1
+  mov rdi, WRITE_NUMBER
   mov rsi, rsp
   syscall
 
@@ -37,12 +37,7 @@ LoopReadWriteBegin:
 
 LoopEnd:
   mov rax, SYS_exit
-  mov rdi, 0
+  mov rdi, RETURN_CODE
   mov rsp, rbp
-  pop r15
-  pop r14
-  pop r13
-  pop r12
   pop rbp
-  pop rbx
   syscall

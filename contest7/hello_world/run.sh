@@ -3,7 +3,7 @@
 make
 
 echo
-echo ==================-SUCCESSFULL COMPILATION-==================
+echo ===============================================
 echo
 
 ./result.o
