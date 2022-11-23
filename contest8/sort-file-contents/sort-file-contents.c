@@ -5,15 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-const int BUFFER_SIZE = 512 * 1024; // 1mb
+const int BUFFER_SIZE = 512 * 1024; // 0,5mb
 
 int Compare(const void* lhs, const void* rhs) {
     int arg1 = *(const int*)lhs;
     int arg2 = *(const int*)rhs;
- 
-    if (arg1 < arg2) return -1;
-    if (arg1 > arg2) return 1;
-    return 0;
+    return arg1 - arg2;
 }
 
 int Merge(int fd, int *fds, int len, int count_of_blocks, int len_of_last_block) {
@@ -46,7 +43,7 @@ int Merge(int fd, int *fds, int len, int count_of_blocks, int len_of_last_block)
         int min_fd = 0;
         
         // search min among all blocks
-        for (int i = 0; i < count_of_blocks; ++i) {
+        for (int i = 0; i <= count_of_blocks; ++i) {
             int number;
             int count_read = read(fds[i], &number, sizeof(int));
 
@@ -68,29 +65,6 @@ int Merge(int fd, int *fds, int len, int count_of_blocks, int len_of_last_block)
                 return 1;
             }
         }
-
-        // compare number of last block with cur min
-        if (len_of_last_block != 0) {
-            int last_number;
-            int count_read = read(fds[count_of_blocks], &last_number, sizeof(int));
-
-            if (count_read == -1) {
-                return 1;
-            }
-
-            if (count_read != 0) {
-                if (last_number < min) {
-                    min = last_number;
-                    min_fd = fds[count_of_blocks];
-                }
-
-                int back_cur_ptr = lseek(fds[count_of_blocks], -4, SEEK_CUR);
-                if (back_cur_ptr == -1) {
-                    return 1;
-                }
-            }
-        }
-
         // add into cur buf min val
         buffer[cur_buf_len++] = min;
         int push_min_ptr = lseek(min_fd, 4, SEEK_CUR);
@@ -125,12 +99,18 @@ int MergeSort(int fd, int len, int count_of_blocks, int len_of_last_block) {
     int last_buffer[len_of_last_block];
 
     int i = 0;
-    for (i = 0; i < count_of_blocks; ++i) {
-        int read_count = read(fd, buffer, BUFFER_SIZE);
-        if (read_count != BUFFER_SIZE) {
+    for (i = 0; i <= count_of_blocks; ++i) {
+        int cur_size = BUFFER_SIZE;
+
+        if (i == count_of_blocks) {
+            cur_size = len_of_last_block;
+        }
+
+        int read_count = read(fd, buffer, cur_size);
+        if (read_count != cur_size) {
             return 1;
         }
-        qsort(buffer, BUFFER_SIZE / 4, sizeof(int), Compare);
+        qsort(buffer, cur_size / 4, sizeof(int), Compare);
 
         char file_name[10];
         sprintf(file_name, "%d", i);
@@ -140,29 +120,8 @@ int MergeSort(int fd, int len, int count_of_blocks, int len_of_last_block) {
             return 1;
         }
 
-        int write_count = write(fds[i], buffer, BUFFER_SIZE);
-        if (write_count != BUFFER_SIZE) {
-            return 1;
-        }
-    }
-
-    if (len_of_last_block != 0) {
-        int read_count = read(fd, last_buffer, len_of_last_block);
-        if (read_count != len_of_last_block) {
-            return 1;
-        }
-        qsort(last_buffer, len_of_last_block / 4, sizeof(int), Compare);
-
-        char file_name[10];
-        sprintf(file_name, "%d", i);
-        fds[i] = open(file_name, O_RDWR | O_CREAT | O_TRUNC, 0640);
-
-        if(fds[i] == -1) {
-            return 1;
-        }
-
-        read_count = write(fds[i], last_buffer, len_of_last_block);
-        if (read_count != len_of_last_block) {
+        int write_count = write(fds[i], buffer, cur_size);
+        if (write_count != cur_size) {
             return 1;
         }
     }

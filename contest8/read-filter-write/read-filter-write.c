@@ -62,21 +62,16 @@ int main(int argc, char **argv) {
 
   while (read_count > 0) {
     for (int i = 0; i < read_count; ++i) {
+      int res = 0;
       if (isdigit(read_buf[i])) {
-        int res = HandleWrite(write_digit_fd, write_digit_buf, &write_digit_len, read_buf[i]);
-
-        if (res != 0) {
-          return_value = res;
-          goto Exit;
-        }
-
+        res = HandleWrite(write_digit_fd, write_digit_buf, &write_digit_len, read_buf[i]);
       } else {
-        int res = HandleWrite(write_ndigit_fd, write_ndigit_buf, &write_ndigit_len, read_buf[i]);
+        res = HandleWrite(write_ndigit_fd, write_ndigit_buf, &write_ndigit_len, read_buf[i]);
+      }
 
-        if (res != 0) {
-          return_value = res;
-          goto Exit;
-        }
+      if (res != 0) {
+        return_value = res;
+        goto Exit;
       }
     }
 

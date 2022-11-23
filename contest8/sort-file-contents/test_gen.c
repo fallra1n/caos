@@ -13,8 +13,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    for (int i = 0; i < 512 * 1024 + 4; ++i) {
-        int value = rand();
+    for (int i = 0; i < 512 * 1024 + 512; ++i) {
+        int value = 512 * 1024 + 512 - i;
         int count = write(write_fd, &value, 4);
 
         if (count <= 0) {
