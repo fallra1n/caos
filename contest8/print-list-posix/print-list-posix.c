@@ -3,23 +3,31 @@
 #include <stdio.h>
 #include <unistd.h>
 
+struct Item {
+    int value;
+    uint32_t next_pointer;
+};
+
 int main(int argc, char **argv) {
+    if (argc < 2) {
+        return 1;
+    }
+
     char *first = argv[1];
 
     int return_value = 0;
     int read_fd = -1;
 
-    read_fd = open(first, O_RDONLY, 0640);
+    read_fd = open(first, O_RDONLY);
     if (read_fd == -1) {
         return_value = 1;
         goto Exit;
     }
 
-    int value = 0;
-    uint32_t next_pointer = 0;
+    struct Item item;
 
     do {
-        int read_count = read(read_fd, &value, sizeof(value));
+        int read_count = read(read_fd, &item, sizeof(item));
         if (read_count == 0) {
             goto Exit;
         }
@@ -29,20 +37,14 @@ int main(int argc, char **argv) {
             goto Exit;
         }
 
-        read_count = read(read_fd, &next_pointer, sizeof(next_pointer));
-        if (read_count <= 0) {
-            return_value = 1;
-            goto Exit;
-        }
-
-        printf("%d\n", value);
-        int offset = lseek(read_fd, next_pointer, SEEK_SET);
+        printf("%d\n", item.value);
+        int offset = lseek(read_fd, item.next_pointer, SEEK_SET);
         if (offset == -1) {
             return_value = -1;
             goto Exit;
         }
 
-    } while (next_pointer != 0);
+    } while (item.next_pointer != 0);
 
 Exit:
     close(read_fd);

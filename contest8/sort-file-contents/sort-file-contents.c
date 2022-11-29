@@ -164,7 +164,7 @@ int Testing(int fd, int count) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 1) {
+    if (argc < 2) {
         return 1;
     }
 
@@ -173,18 +173,18 @@ int main(int argc, char **argv) {
     int return_value = 0;
     int fd = -1;
 
-    fd = open(first, O_RDWR, 0640);
+    fd = open(first, O_RDWR);
     if (fd == -1) {
         return_value = 1;
         goto Exit;
     }
 
-    int count_bytes = lseek(fd, 0, SEEK_END);
+    uint64_t count_bytes = lseek(fd, 0, SEEK_END);
     if (count_bytes == -1) {
         return_value = 1;
         goto Exit;
     }
-    int len = count_bytes / sizeof(int);
+    uint64_t len = count_bytes / sizeof(int);
     int count_of_blocks = count_bytes / BUFFER_SIZE;
     int len_of_last_block = count_bytes % BUFFER_SIZE;
 
@@ -196,8 +196,7 @@ int main(int argc, char **argv) {
 
     int return_code = MergeSort(fd, len, count_of_blocks, len_of_last_block);
     return_value = return_code;
-    // Testing(fd, count_bytes);
-
+    Testing(fd, count_bytes);
 Exit:
     close(fd);
 

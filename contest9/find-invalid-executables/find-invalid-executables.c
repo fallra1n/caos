@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <elf.h>
+
+const int SHEEBANG_PATH_MAX = PATH_MAX + 2;
 
 bool IsCorrectExecutableFile(char *file_name) {
     bool res = true;
@@ -17,14 +20,14 @@ bool IsCorrectExecutableFile(char *file_name) {
     }
 
     // #! - 2 + Path_max
-    char begin[PATH_MAX + 2];
-    if (fgets(begin, PATH_MAX + 2, f) == NULL) {
+    char begin[SHEEBANG_PATH_MAX];
+    if (fgets(begin, SHEEBANG_PATH_MAX, f) == NULL) {
         return false;
     }
 
 
     // change \n -> \0
-    char *feed_line_ptr = memchr(begin, '\n', PATH_MAX + 2);
+    char *feed_line_ptr = memchr(begin, '\n', SHEEBANG_PATH_MAX);
     if (feed_line_ptr) {
         *feed_line_ptr = '\0';
     }
@@ -46,7 +49,7 @@ bool IsCorrectExecutableFile(char *file_name) {
     }
 
     // check elf file
-    if (!(begin[0] == 0x7f && begin[1] == 'E' && begin[2] == 'L' && begin[3] == 'F')) {
+    if (strncmp(begin, ELFMAG, SELFMAG) != 0) {
         res = false;
     }
 
@@ -74,7 +77,6 @@ int main() {
             // check that file marked as executable
             if (cur_stat.st_mode & S_IXUSR) {
                 
-                // check that file is correct
                 if (!IsCorrectExecutableFile(file_name)) {
                     printf("%s\n", file_name);
                 }

@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    for (int i = 0; i < 512 * 1024 + 512; ++i) {
+    for (int i = 0; i < 1024 + 512; ++i) {
         int value = 512 * 1024 + 512 - i;
         int count = write(write_fd, &value, 4);
 

@@ -3,7 +3,17 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+struct Item {
+  int value;
+  uint32_t next_pointer;
+};
+
+
 int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        return 1;
+    } 
+
     // LPSTR - char*
     LPSTR first = argv[1];
 
@@ -19,15 +29,14 @@ int main(int argc, char* argv[]) {
         goto Exit;
     }
     
-    // INT - int
-    INT value = 0;
-    DWORD next_pointer = 0;
+    struct Item item;
+    
 
     do {
         DWORD read_count = 0;
 
         // 0 - !FILE_FLAG_OVERLAPPED
-        BOOL ok = ReadFile(read_fd, &value, sizeof(value), &read_count, 0);
+        BOOL ok = ReadFile(read_fd, &item, sizeof(item), &read_count, 0);
         if (!ok) {
             return_value = 1;
             goto Exit;
@@ -37,17 +46,11 @@ int main(int argc, char* argv[]) {
             goto Exit;
         }
 
-        ok = ReadFile(read_fd, &next_pointer, sizeof(next_pointer), &read_count, 0);
-        if (!ok || read_count == 0) {
-            return_value = 1;
-            goto Exit;
-        }
-
-        printf("%d\n", value);
+        printf("%d\n", item.value);
 
         // cast int -> large_int
         LARGE_INTEGER offset;
-        offset.QuadPart = next_pointer;
+        offset.QuadPart = item.next_pointer;
 
         // NULL - var for new ptr of file
         // 0 - SEEK_SET(file begin)
@@ -57,7 +60,7 @@ int main(int argc, char* argv[]) {
             goto Exit;
         }
 
-    } while (next_pointer != 0);
+    } while (item.next_pointer != 0);
 
 Exit:
     CloseHandle(read_fd);
