@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 void normalize_path(char *path) {
-    char *write_ptr = path + 0;
-    char *cur_ptr = path + 0;
+    char *write_ptr = path;
+    char *cur_ptr = path;
 
     int count_of_slashs = 0;
     int count_of_dots = 0;
