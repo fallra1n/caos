@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
     do {
         item.value = *((int*)(data + item.next_pointer));
-        item.next_pointer = *((int*)(data + item.next_pointer + sizeof(int)));
+        item.next_pointer = *((uint32_t*)(data + item.next_pointer + sizeof(int)));
 
         printf("%d\n", item.value);
     } while (item.next_pointer != 0);

@@ -1,25 +1,38 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdint.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
     if (argc < 2) {
         return 1;
     }
 
-    int n = strtol(argv[1], NULL, 10);
+    int n = atoi(argv[1]);
+    for (int i = 1; i <= n; ++i) {
+        pid_t pid = fork();
 
-    for (int i = 1; i < n; ++i) {
-        printf("%d ", i);
-        fflush(stdout);
+        if (pid == 0) { // if child
+            printf("%d", i);
 
-        uint32_t pid = fork();
+            if (i == n) {
+                printf("\n");
+            } else {
+                printf(" ");
+            }
+        } else { // if parent
+            int fork_ret;
+            waitpid(pid, &fork_ret, 0);
 
-        if (!pid) {
-            break;
+            if (fork_ret == -1) {
+                return 1;
+            }
+
+            return 0;
         }
+        fflush(stdout);
     }
 
     return 0;
