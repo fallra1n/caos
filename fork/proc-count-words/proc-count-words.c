@@ -4,9 +4,11 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#define WORD_SIZE 4096
+
 int main() {
 
-    int ch;
+    char cur_word[WORD_SIZE];
     int res = 0;
     int is_root = true;
 
@@ -16,25 +18,13 @@ int main() {
         if (pid == 0) {
             is_root = false;
 
-            ch = fgetc(stdin);
+            int count_of_symbols = scanf("%s", cur_word);
 
-            while ((ch == ' ' || ch == '\n') && ch != EOF) {
-                ch = fgetc(stdin);
-            }
-
-            if (ch == EOF) {
+            if (count_of_symbols == EOF) {
                 return res;
+            } else {
+                ++res;
             }
-
-            while (!(ch == ' ' || ch == '\n') && ch != EOF) {
-                ch = fgetc(stdin);
-            }
-
-            if (ch == EOF) {
-                return res + 1;
-            }
-
-            ++res;
         }
 
         if (pid != 0) {
@@ -46,7 +36,7 @@ int main() {
             if (!is_root) {
                 return res;
             }
-            
+
             if (is_root) {
                 break;
             }

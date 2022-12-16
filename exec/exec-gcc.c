@@ -6,7 +6,7 @@
 
 const char C_CODE[] = "#include <stdio.h>\n"
                       "int main(){\n"
-                      "    printf(\"%s\", %s);\n"
+                      "    printf(\"%s\", (%s));\n"
                       "    return 0;\n"
                       "}\n";
 
@@ -16,15 +16,13 @@ int main() {
     int return_value = 0;
 
     char buffer[BUFFER_SIZE];
-    buffer[0] = '(';
 
-    if (fgets(buffer + 1, BUFFER_SIZE - 2, stdin) == NULL) {
+    if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
         return 1;
     }
 
     char *feed_line_ptr = memchr(buffer, '\n', BUFFER_SIZE);
     if (feed_line_ptr) {
-        *feed_line_ptr = ')';
         *(feed_line_ptr + 1) = '\0';
     }
 
@@ -34,7 +32,7 @@ int main() {
     char program_name[] = "calculate_expression.c";
     char bin_name[] = "calculate_expression";
 
-    int fd = open(program_name, O_RDWR | O_CREAT, 0640);
+    int fd = open(program_name, O_WRONLY | O_CREAT, 0640);
     if (fd == -1) {
         return_value = 1;
         goto Exit;
@@ -52,6 +50,8 @@ int main() {
 
     if (pid == 0) {
         execlp("gcc", "gcc", "-o", bin_name, program_name, NULL);
+        perror("execlp compile file");
+        return 1;
     } else {
         int fork_ret;
         waitpid(pid, &fork_ret, 0);
@@ -66,6 +66,8 @@ int main() {
     pid = fork();
     if (pid == 0) {
         execl(bin_name, bin_name, NULL);
+        perror("execlp run file");
+        return 1;
     } else {
         int fork_ret;
         waitpid(pid, &fork_ret, 0);

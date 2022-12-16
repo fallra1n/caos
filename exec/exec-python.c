@@ -18,7 +18,7 @@ int main() {
     char python_expression[BUFFER_SIZE + 7];
     snprintf(python_expression, BUFFER_SIZE + 7, "print(%s)", buffer);
 
-    if (execlp("python", "python", "-c", python_expression, NULL) == -1) {
-        return 1;
-    }
+    execlp("python", "python", "-c", python_expression, NULL);
+    perror("execlp");
+    return 1;
 }
