@@ -14,3 +14,4 @@ add_executable(normalize_path attributes-of-files-fd/normalize-path/normalize-pa
 add_executable(find-substrings-in-file mmap/find-substrings-in-file/find-substrings-in-file.c)
 add_executable(print-list-using-mmap mmap/print-list-using-mmap/print-list-using-mmap.c)
 add_executable(proc-count-words fork/proc-count-words/proc-count-words.c)
+add_executable(ping-pong-threads-socketpair threads/ping-pong-threads-socketpair.c)
