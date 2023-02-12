@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
   int return_val = 0;
 
-  int N = atoi(argv[1]);
+  int N = (int)strtol(argv[1], NULL, 10);
 
   pthread_t *threads = malloc(sizeof(pthread_t) * N);
   int *sums = malloc(sizeof(int) * N);
@@ -46,11 +46,8 @@ int main(int argc, char **argv) {
 
   // create threads
   for (int i = 0; i < N; i++) {
-    int ret = pthread_create(&threads[i], &thread_attrs, ParallelSum, &sums[i]);
-    if (ret != 0) {
-      return_val = 1;
-      goto Exit;
-    }
+    ret_code = pthread_create(&threads[i], &thread_attrs, ParallelSum, &sums[i]);
+    ERROR_HANDLE(ret_code, SUCCESS_RET_CODE)
   }
 
   // wait all threads
