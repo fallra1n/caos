@@ -12,9 +12,7 @@
 #define ERROR_HANDLE(code, error_code, m_) if(code == error_code) { EXIT(1, m_) }
 #define ERROR_CODE (-1)
 
-enum {
-  PING_PKT_S = 64
-};
+#define PING_PKT_S 64
 
 volatile sig_atomic_t interrupted = 0;
 
@@ -61,7 +59,7 @@ void SendPing(int sock_fd, struct sockaddr* conn_addr, size_t addr_conn_len, siz
   alarm(timeout); // alarm after timeout
 
   int ret_val = bind(sock_fd, conn_addr, addr_conn_len);
-  ERROR_HANDLE(ret_val, ERROR_CODE, "bind")
+  //ERROR_HANDLE(ret_val, ERROR_CODE, "bind")
 
   size_t responses = 0;
   int msg_count = 0;
@@ -83,10 +81,10 @@ void SendPing(int sock_fd, struct sockaddr* conn_addr, size_t addr_conn_len, siz
     pckt.hdr.checksum = ICMPChecksum(&pckt, sizeof(struct ping_pkt_t));
 
     ret_val = sendto(sock_fd, &pckt, sizeof(pckt), 0, (struct sockaddr*) conn_addr, addr_conn_len);
-    ERROR_HANDLE(ret_val, ERROR_CODE, "sendto")
+    //ERROR_HANDLE(ret_val, ERROR_CODE, "sendto")
 
     ret_val = recvfrom(sock_fd, &pckt, sizeof(pckt), 0, NULL, NULL);
-    ERROR_HANDLE(ret_val, ERROR_CODE, "recvfrom")
+    //ERROR_HANDLE(ret_val, ERROR_CODE, "recvfrom")
 
     ++responses;
     usleep(interval); // wait
@@ -120,7 +118,7 @@ int main(int argc, char **argv) {
   };
 
   int sock_fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-  ERROR_HANDLE(sock_fd, ERROR_CODE, "socket")
+  //ERROR_HANDLE(sock_fd, ERROR_CODE, "socket")
 
   SendPing(sock_fd, (struct sockaddr*) &conn_addr, sizeof(conn_addr), timeout, interval);
 

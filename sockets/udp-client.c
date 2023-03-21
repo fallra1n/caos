@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
   ERROR_HANDLE(sock_fd, ERROR_CODE, "socket")
 
   int ret_val = bind(sock_fd, (struct sockaddr*) &full_addr, sizeof(struct sockaddr_in));
-  ERROR_HANDLE(ret_val, ERROR_CODE, "bind")
+  //ERROR_HANDLE(ret_val, ERROR_CODE, "bind")
 
   int send_num, reqv_num;
   while (scanf("%d", &send_num) > 0) {
@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
     ERROR_HANDLE(ret_val, ERROR_CODE, "recvfro")
 
     printf("%d\n", reqv_num);
+    fflush(stdout);
   }
 
   close(sock_fd);
