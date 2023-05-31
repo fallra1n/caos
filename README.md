@@ -1,1 +1,1 @@
-# mipt-caos
+# caos
